@@ -9,7 +9,7 @@ I'm a Software Development Apprentice in the UK (namely the north bit). Most of 
 - [advancedHigherProj](https://github.com/Alicolliar/advancedHigherProj) - The project that got me my A in Advanced Higher Computing, I'm pretty pleased with her.
 - [Trolligarchian-Financial-Systems](https://github.com/Alicolliar/Trolligarchian-Financial-Systems) - Currently, my single largest complete project. It is fully explained [over here](https://docs.google.com/document/d/1SL6t8Y1GYr_gR_KVtozvuWSTph0yeuYzRQXMKdAHktE/edit?usp=sharing), but it was... an experience.
 - [Risk-For-Thing](https://github.com/Alicolliar/Risk-For-Thing) - My most recent fully complete project, that has really got me vibing with data science and maths.
-- [deep-feelings-of-inadequacy](https://github.com/Alicolliar/political-bot/deep-feelings-of-inadequacy) - Another stock exchange, this one for DemocracyCraft, a democracy RP thing based in Minecraft. It may not have taken off, but I still enjoy it
+- [deep-feelings-of-inadequacy](https://github.com/Alicolliar/deep-feelings-of-inadequacy) - Another stock exchange, this one for DemocracyCraft, a democracy RP thing based in Minecraft. It may not have taken off, but I still enjoy it
 
 ### Want me to work with you on a thing?
 If you've looked through the greatest hits and haven't left/died yet, you're mad. But if you still wanted to work with me on something then, umm, IDK, open an issue on Alicolliar repo and I'll get back to you whenever I can.
