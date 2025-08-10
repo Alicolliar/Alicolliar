@@ -1,0 +1,33 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html>
+  <head>
+    {{if .PageTitle }}
+    <title>Alicolliar's Website - {{ .PageTitle }}</title>
+    {{else}}
+    <title>Alicolliar's Website</title>
+    {{end}}
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Ali's Website</h1>
+      <h3><i>He finally did it!</i></h3>
+    </header>
+    <nav>
+      <a href="/">About Me!</a>
+      <a href="/blog">The Blog</a>
+      <a href="https://github.com/alicolliar">My Github</a>
+      <a href="https://linkedin.com/alistair-colliar">LinkedIn</a>
+      <a href="https://bsky.app/profile/alicolliar.net">Bluesky</a>
+    </nav>
+    <main>{{ end }} {{ define "footer" }}</main>
+    <footer>
+      <h3>
+        Ali made this deliberately bad, honest. The code can be found
+        <a href="https://www.github.com/alicolliar/alicolliar">here</a>.
+      </h3>
+    </footer>
+  </body>
+</html>
+{{ end }}

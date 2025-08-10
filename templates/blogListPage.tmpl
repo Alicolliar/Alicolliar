@@ -1,0 +1,19 @@
+{{template "header" .}}
+<span id="blogHead">
+  <h3>{{if .SortTag}}"{{.SortTag}}" Blog Posts{{else}}All Blog Posts{{end}}</h3>
+</span>
+<span class="blogList">
+  {{if .Posts}} {{ range .Posts }}
+  <div class="postSquare">
+    <a href="/blog/{{.UrlSlug}}"><h2>{{.Title}}</h2></a>
+    <h3>{{.Subtitle}}</h3>
+    <p>Tags:{{range .Tags}} <a href="/blog/tags/{{.}}">{{.}}</a>,{{end}}</p>
+    <p><i>Posted {{.Timestamp.Format "2006 Jan 02 15:04"}}</i></p>
+  </div>
+  {{ end }} {{ else }}
+  <span>
+    <div class="postSquare">No Posts Yet!</div>
+  </span>
+  {{ end }}
+</span>
+{{template "footer"}}

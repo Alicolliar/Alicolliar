@@ -1,0 +1,15 @@
+[Unit]
+Description=Hot Little Blog Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+WorkingDirectory=/home/alicolliar
+ExecStart=/home/alicolliar/blog-platform-server
+
+[Install]
+WantedBy=multi-user.target

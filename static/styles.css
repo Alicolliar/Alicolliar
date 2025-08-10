@@ -1,0 +1,56 @@
+.raleway-here {
+  font-family: "Raleway", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fcd0b1;
+}
+
+header {
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+}
+
+nav {
+  align-items: center;
+  display: flex;
+}
+nav div,
+nav a {
+  border: 1px solid hotpink;
+  padding: 10px;
+  margin: 10px;
+}
+
+#aboutSpan {
+  display: block;
+  width: 50%;
+}
+
+.blogList {
+  display: block;
+  width: 100%;
+}
+
+.postPage {
+  text-align: justify;
+}
+
+.postSquare {
+  display: center;
+  border: 0.5px solid coral;
+  width: 50%;
+  text-align: justify;
+}
+
+.postSquare * {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
