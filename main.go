@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"html/template"
 	"log"
@@ -28,6 +29,8 @@ type NeatModel struct {
 	Database *c.DB
 }
 
+var SITE_BASEURL string
+
 const blogCollection = "blogPosts"
 
 var secureToken string
@@ -40,12 +43,13 @@ func (theModel NeatModel) indexHandler(w http.ResponseWriter, req *http.Request)
 }
 
 type blogPost struct {
-	Timestamp time.Time `json:"timestamp,omitempty"`
-	UrlSlug   string    `json:"urlSlug,omitempty"`
-	Title     string    `json:"title"`
-	Subtitle  string    `json:"subtitle"`
-	Tags      []string  `json:"tags"`
-	PostText  string    `json:"postText"`
+	Timestamp time.Time `json:"timestamp,omitempty" xml:"pubDate"`
+	UrlSlug   string    `json:"urlSlug,omitempty" xml:"-"`
+	Title     string    `json:"title" xml:"title"`
+	Subtitle  string    `json:"subtitle" xml:"description"`
+	Tags      []string  `json:"tags" xml:"-"`
+	PostText  string    `json:"postText" xml:"-"`
+	Link      string    `xml:"link"`
 }
 
 func (theModel NeatModel) postReceivePath(w http.ResponseWriter, req *http.Request) {
@@ -120,7 +124,7 @@ func (theModel NeatModel) renderAPost(w http.ResponseWriter, r *http.Request) {
 func (theModel NeatModel) renderTagList(w http.ResponseWriter, r *http.Request) {
 	tag := r.PathValue("sortTag")
 	var blogPosts []blogPost
-	dbDocs, err := theModel.Database.Query(blogCollection).Where(c.Field("Tags").Contains(tag)).FindAll()
+	dbDocs, err := theModel.Database.Query(blogCollection).Where(c.Field("Tags").Contains(tag)).Sort(c.SortOption{Field: "Timestamp", Direction: -1}).FindAll()
 	if err != nil {
 		if err == c.ErrDocumentNotExist {
 			w.WriteHeader(http.StatusNotFound)
@@ -143,6 +147,49 @@ func (theModel NeatModel) renderTagList(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Tag List error", err)
 	}
+}
+
+type rssDoc struct {
+	XMLName  xml.Name  `xml:"rss"`
+	Version  int       `xml:"version,attr"`
+	Channels []Channel `xml:"channel"`
+}
+
+type Channel struct {
+	XMLName     xml.Name   `xml:"channel"`
+	Title       string     `xml:"title"`
+	Link        string     `xml:"link"`
+	Description string     `xml:"description"`
+	Posts       []blogPost `xml:"item"`
+}
+
+func (theModel NeatModel) rssFeeder(w http.ResponseWriter, r *http.Request) {
+	var blogPosts []blogPost
+	dbDocs, _ := theModel.Database.Query(blogCollection).Sort(c.SortOption{Field: "Timestamp", Direction: -1}).FindAll()
+	for _, dbPost := range dbDocs {
+		var newPost blogPost
+		dbPost.Unmarshal(&newPost)
+		newPost.Link = SITE_BASEURL + "/blog/" + newPost.UrlSlug
+		blogPosts = append(blogPosts, newPost)
+	}
+	w.Header().Add("content-type", "application/xml")
+	theDoc := rssDoc{
+		Version: 2.0,
+		Channels: []Channel{
+			{
+				Title:       "Alicolliar's Blog",
+				Link:        SITE_BASEURL + "/blog",
+				Description: "Inane ramblings from the mind of Alicolliar",
+				Posts:       blogPosts,
+			},
+		},
+	}
+	outputXml, err := xml.Marshal(theDoc)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("RSS Feed issue", err)
+	}
+	w.Write(outputXml)
 }
 
 func main() {
@@ -169,6 +216,7 @@ func main() {
 	daMux.HandleFunc("GET /blog/", pageModel.renderAllPosts)
 	daMux.HandleFunc("GET /blog/{blogSlug}", pageModel.renderAPost)
 	daMux.HandleFunc("GET /blog/tags/{sortTag}", pageModel.renderTagList)
+	daMux.HandleFunc("GET /blog/rss", pageModel.rssFeeder)
 	fmt.Println("localhost:3000")
 	if err := http.ListenAndServe(":3000", daMux); err != nil {
 		log.Panicln(err)
