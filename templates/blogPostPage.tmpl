@@ -3,7 +3,7 @@
   <h2>{{ .Post.Title }}</h2>
   <h3>{{ .Post.Subtitle }}</h3>
   <i>Published {{ .Post.Timestamp.Format "2006 Jan 02 15:04"}}</i>
-  <p class="raleway-here">{{ nl2br .Post.PostText }}</p>
+  <p class="raleway-here">{{ .Post.PostText | markedDown }}</p>
   <p>
     Tags: {{ range.Post.Tags }} <a href="/blog/tags/{{.}}">{{.}}</a
     >,{{ end }}

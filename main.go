@@ -8,9 +8,9 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/gomarkdown/markdown"
 	"github.com/gosimple/slug"
 
 	c "github.com/ostafen/clover"
@@ -76,7 +76,7 @@ func (theModel NeatModel) postReceivePath(w http.ResponseWriter, req *http.Reque
 
 func (theModel NeatModel) renderAllPosts(w http.ResponseWriter, req *http.Request) {
 	var blogPosts []blogPost
-	dbDocs, _ := theModel.Database.Query(blogCollection).Sort(c.SortOption{Field: "timestamp", Direction: -1}).FindAll()
+	dbDocs, _ := theModel.Database.Query(blogCollection).Sort(c.SortOption{Field: "Timestamp", Direction: -1}).FindAll()
 	for _, dbPost := range dbDocs {
 		var newPost blogPost
 		dbPost.Unmarshal(&newPost)
@@ -153,8 +153,8 @@ func main() {
 		db.CreateCollection(blogCollection)
 	}
 	funcs := template.FuncMap{
-		"nl2br": func(text string) template.HTML {
-			return template.HTML(strings.ReplaceAll(template.HTMLEscapeString(text), "\n", "<br>"))
+		"markedDown": func(post string) template.HTML {
+			return template.HTML(markdown.ToHTML([]byte(post), nil, nil))
 		},
 	}
 	pageModel := NeatModel{
