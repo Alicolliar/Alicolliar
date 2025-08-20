@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"encoding/xml"
@@ -11,8 +12,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gomarkdown/markdown"
 	"github.com/gosimple/slug"
+	markdown "github.com/yuin/goldmark"
 
 	c "github.com/ostafen/clover"
 )
@@ -201,7 +202,10 @@ func main() {
 	}
 	funcs := template.FuncMap{
 		"markedDown": func(post string) template.HTML {
-			return template.HTML(markdown.ToHTML([]byte(post), nil, nil))
+			var htmlBuf bytes.Buffer
+			markdown.Convert([]byte(post), &htmlBuf)
+			log.Println(htmlBuf)
+			return template.HTML(htmlBuf.Bytes())
 		},
 	}
 	pageModel := NeatModel{

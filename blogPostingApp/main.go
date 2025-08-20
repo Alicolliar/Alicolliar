@@ -139,8 +139,10 @@ func (model commandModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (model commandModel) View() string {
 	return fmt.Sprintf(
-		"%s\n\n%s %s\n%s %s\n%s \n%s\n\n%s %s\n%s %s\n%s",
+		"%s\n%s %s\n%s %s\n%s %s\n%s \n%s\n\n%s %s\n%s %s\n%s",
 		inputStyle.Bold(true).Render("Alicolliar's Blog Posting TUI"),
+		inputStyle.Render("Posting to:"),
+		inputStyle.Render(BASE_URL),
 		inputStyle.Render("Post Title"),
 		model.Inputs[titleIn].View(),
 		inputStyle.Render("Post Subtitle"),
