@@ -14,6 +14,7 @@ import (
 
 	"github.com/gosimple/slug"
 	markdown "github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/parser"
 
 	c "github.com/ostafen/clover"
 )
@@ -203,8 +204,10 @@ func main() {
 	funcs := template.FuncMap{
 		"markedDown": func(post string) template.HTML {
 			var htmlBuf bytes.Buffer
-			markdown.Convert([]byte(post), &htmlBuf)
-			log.Println(htmlBuf)
+			md := markdown.New(
+				markdown.WithParserOptions(parser.WithAutoHeadingID(), parser.WithHeadingAttribute()),
+			)
+			md.Convert([]byte(post), &htmlBuf)
 			return template.HTML(htmlBuf.Bytes())
 		},
 	}

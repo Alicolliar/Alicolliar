@@ -1,9 +1,9 @@
 {{ template "header" .}}
 <div class="postPage">
-  <h2>{{ .Post.Title }}</h2>
-  <h3>{{ .Post.Subtitle }}</h3>
-  <i>Published {{ .Post.Timestamp.Format "2006 Jan 02 15:04"}}</i>
-  <p class="raleway-here">{{ .Post.PostText | markedDown }}</p>
+  <h1>{{ .Post.Title }}</h1>
+  <p class="post-subhead"><i>{{ .Post.Subtitle }}</i></p>
+  <i>Published {{ .Post.Timestamp.Format "2006 January 02 15:04"}}</i>
+  <div> {{ .Post.PostText | markedDown }}</div>
   <p>
     Tags: {{ range.Post.Tags }} <a href="/blog/tags/{{.}}">{{.}}</a
     >,{{ end }}

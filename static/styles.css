@@ -7,11 +7,16 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #fcd0b1;
+  background-color: #fcebd8;
 }
 
 header {
+  background-color: #359bb4;
   text-align: center;
+  color: whitesmoke;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  width: 100%
 }
 
 footer {
@@ -40,12 +45,16 @@ nav a {
 }
 
 .postPage {
-  text-align: justify;
+  margin-left: 12.5%;
+  margin-right: 12.5%;
+  width: 75%;
+  text-wrap: wrap;
 }
 
 .postSquare {
   display: center;
-  border: 0.5px solid coral;
+  border: 1.5px solid coral;
+  margin: 7.5px;
   width: 50%;
   text-align: justify;
 }
@@ -53,4 +62,9 @@ nav a {
 .postSquare * {
   margin-top: 0;
   margin-bottom: 0.5em;
+}
+
+.post-subhead {
+  color: gray;
+  font-size: 120%;
 }
