@@ -16,7 +16,7 @@ header {
   color: whitesmoke;
   padding-top: 10px;
   padding-bottom: 10px;
-  width: 100%
+  width: 100%;
 }
 
 footer {
@@ -49,6 +49,10 @@ nav a {
   margin-right: 12.5%;
   width: 75%;
   text-wrap: wrap;
+}
+
+.postPage div p:has(img) {
+  text-align: center;
 }
 
 .postSquare {

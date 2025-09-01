@@ -7,11 +7,14 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html/template"
+	"image/jpeg"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 	markdown "github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/parser"
@@ -194,6 +197,58 @@ func (theModel NeatModel) rssFeeder(w http.ResponseWriter, r *http.Request) {
 	w.Write(outputXml)
 }
 
+func (theModel NeatModel) receiveImage(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Authorization") != ("Bearer " + secureToken) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if r.Header.Get("Content-Type") != "image/jpeg" {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		return
+	}
+	theImage, err := jpeg.Decode(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	imgId, err := uuid.NewRandom()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	idString := imgId.String()
+	theFile, err := os.Create(fmt.Sprintf("images/%v.jpg", idString))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Couldn't create image file")
+		return
+	}
+	if err := jpeg.Encode(theFile, theImage, nil); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Couldn't write image file")
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(idString))
+}
+
+func (theModel NeatModel) getImage(w http.ResponseWriter, r *http.Request) {
+	imgId := r.PathValue("imgId")
+	theFile, err := os.Open(fmt.Sprintf("images/%v.jpg", imgId))
+	defer theFile.Close()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	theImage, err := jpeg.Decode(theFile)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Add("Content-Type", "image/jpeg")
+	jpeg.Encode(w, theImage, nil)
+}
+
 func main() {
 	daMux := http.NewServeMux()
 	db, _ := c.Open("blog-db")
@@ -224,6 +279,8 @@ func main() {
 	daMux.HandleFunc("GET /blog/{blogSlug}", pageModel.renderAPost)
 	daMux.HandleFunc("GET /blog/tags/{sortTag}", pageModel.renderTagList)
 	daMux.HandleFunc("GET /blog/rss", pageModel.rssFeeder)
+	daMux.HandleFunc("POST /blog/new/image", pageModel.receiveImage)
+	daMux.HandleFunc("GET /blog/image/{imgId}", pageModel.getImage)
 	fmt.Println("localhost:3000")
 	if err := http.ListenAndServe(":3000", daMux); err != nil {
 		log.Panicln(err)

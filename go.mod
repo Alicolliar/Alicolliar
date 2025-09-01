@@ -6,11 +6,11 @@ toolchain go1.24.5
 
 tool github.com/a-h/templ/cmd/templ
 
+require github.com/a-h/templ v0.3.920 // indirect
+
 require (
-	github.com/a-h/templ v0.3.920 // indirect
-	github.com/gosimple/slug v1.15.0
-	github.com/ostafen/clover v1.2.0
-	github.com/yuin/goldmark v1.7.13
+	github.com/kr/pretty v0.3.1 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
 require (
@@ -31,20 +31,22 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v2.0.6+incompatible // indirect
+	github.com/google/uuid v1.6.0
+	github.com/gosimple/slug v1.15.0
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
+	github.com/ostafen/clover v1.2.0
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/yuin/goldmark v1.7.13
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/tools v0.32.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
