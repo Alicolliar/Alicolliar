@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -38,6 +39,8 @@ var SITE_BASEURL string
 
 const blogCollection = "blogPosts"
 
+const microBlogCollection = "microBlogs"
+
 var secureToken string
 
 func (theModel NeatModel) indexHandler(w http.ResponseWriter, req *http.Request) {
@@ -57,10 +60,18 @@ type blogPost struct {
 	Link      string    `xml:"link"`
 }
 
+type microPost struct {
+	Timestamp time.Time `json:"timestamp,omitempty"`
+	PostText  string    `json:"postText"`
+	Link      string    `json:"link,omitempty"`
+	ImageId   string    `json:"imageId,omitempty"`
+}
+
 func (theModel NeatModel) postReceivePath(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	log.Println("Post received")
 	if req.Header.Get("Authorization") != ("Bearer " + secureToken) {
+		log.Println("Post unauthorised.")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -81,6 +92,58 @@ func (theModel NeatModel) postReceivePath(w http.ResponseWriter, req *http.Reque
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (theModel NeatModel) microPostReceivePath(w http.ResponseWriter, req *http.Request) {
+	decoder := json.NewDecoder(req.Body)
+	log.Println("Post received")
+	if req.Header.Get("Authorization") != ("Bearer " + secureToken) {
+		log.Println("Unauthorised request, key used", req.Header.Get("Authorization"))
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	log.Println("Post correctly authed")
+	var newPost *microPost
+	err := decoder.Decode(&newPost)
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		log.Println("Unprocessable request")
+		return
+	}
+	if newPost.Timestamp.IsZero() {
+		newPost.Timestamp = time.Now()
+	}
+	log.Println(newPost.PostText)
+	err = theModel.Database.Insert(microBlogCollection, c.NewDocumentOf(newPost))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (theModel NeatModel) renderMicroPosts(w http.ResponseWriter, req *http.Request) {
+	var blogPosts []microPost
+	fetchLimit, _ := strconv.Atoi(req.FormValue("limit"))
+	if fetchLimit == 0 {
+		fetchLimit = 50
+	}
+	log.Println("fetchLimit", fetchLimit)
+	dbDocs, _ := theModel.Database.Query(microBlogCollection).Sort(c.SortOption{Field: "Timestamp", Direction: -1}).Limit(fetchLimit).FindAll()
+	for _, dbPost := range dbDocs {
+		var newPost microPost
+		dbPost.Unmarshal(&newPost)
+		blogPosts = append(blogPosts, newPost)
+	}
+	pageMetaData := map[string]any{
+		"PageTitle":  "Microblog",
+		"MicroPosts": blogPosts,
+	}
+	log.Print(blogPosts)
+	if err := theModel.Template.ExecuteTemplate(w, "microBlogPage.tmpl", pageMetaData); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("All post error", err)
+	}
 }
 
 func (theModel NeatModel) renderAllPosts(w http.ResponseWriter, req *http.Request) {
@@ -148,7 +211,7 @@ func (theModel NeatModel) renderTagList(w http.ResponseWriter, r *http.Request) 
 		"SortTag": tag,
 		"Posts":   blogPosts,
 	}
-	if err := theModel.Template.ExecuteTemplate(w, "blogListPage.tmpl", pageMetaData); err != nil {
+	if err := theModel.Template.ExecuteTemplate(w, "microBlogPage.tmpl", pageMetaData); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println("Tag List error", err)
 	}
@@ -235,11 +298,11 @@ func (theModel NeatModel) receiveImage(w http.ResponseWriter, r *http.Request) {
 func (theModel NeatModel) getImage(w http.ResponseWriter, r *http.Request) {
 	imgId := r.PathValue("imgId")
 	theFile, err := os.Open(fmt.Sprintf("images/%v.jpg", imgId))
-	defer theFile.Close()
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	defer theFile.Close()
 	theImage, err := jpeg.Decode(theFile)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -255,6 +318,9 @@ func main() {
 	defer db.Close()
 	if dbExis, _ := db.HasCollection(blogCollection); !dbExis {
 		db.CreateCollection(blogCollection)
+	}
+	if dbExis, _ := db.HasCollection(microBlogCollection); !dbExis {
+		db.CreateCollection(microBlogCollection)
 	}
 	funcs := template.FuncMap{
 		"markedDown": func(post string) template.HTML {
@@ -276,11 +342,13 @@ func main() {
 	daMux.HandleFunc("GET /", pageModel.indexHandler)
 	daMux.HandleFunc("POST /blog/new", pageModel.postReceivePath)
 	daMux.HandleFunc("GET /blog/", pageModel.renderAllPosts)
+	daMux.HandleFunc("GET /blog/micro", pageModel.renderMicroPosts)
 	daMux.HandleFunc("GET /blog/{blogSlug}", pageModel.renderAPost)
 	daMux.HandleFunc("GET /blog/tags/{sortTag}", pageModel.renderTagList)
 	daMux.HandleFunc("GET /blog/rss", pageModel.rssFeeder)
 	daMux.HandleFunc("POST /blog/new/image", pageModel.receiveImage)
 	daMux.HandleFunc("GET /blog/image/{imgId}", pageModel.getImage)
+	daMux.HandleFunc("POST /blog/new/micro", pageModel.microPostReceivePath)
 	fmt.Println("localhost:3000")
 	if err := http.ListenAndServe(":3000", daMux); err != nil {
 		log.Panicln(err)

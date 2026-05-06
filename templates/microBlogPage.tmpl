@@ -1,0 +1,19 @@
+{{template "header" .}}
+<h3 class="blogHead">Alicolliar's Personal Micro Blog Site</h3>
+<span class="blogList">
+    {{if .MicroPosts}} {{range.MicroPosts}}
+    <div class="postSquare">
+        <i>{{.Timestamp.Format "2006 January 02 15:04"}}</i>
+        <p>
+        
+            {{ .PostText | markedDown }}
+        </p>
+        {{ if .ImageId }} 
+            <img src="https://alicolliar.net/blog/image/{{ .ImageId }}">
+        {{end}}
+    </div>
+    {{ end }} {{ else }} 
+        <p> No posts yet!</p>
+    {{end}}
+</span>
+{{template "footer"}}
