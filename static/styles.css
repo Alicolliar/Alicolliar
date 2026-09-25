@@ -54,6 +54,9 @@ nav a {
 .postPage div p:has(img) {
   text-align: center;
 }
+.postPage div p img {
+  width:100%;
+}
 
 .postSquare {
   display: center;

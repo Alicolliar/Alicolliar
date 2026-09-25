@@ -102,8 +102,8 @@ type microPost struct {
 
 func main() {
 	imgPath := flag.String("img", "", "If set, uses this as the path for the image to upload, and then exits. Defaults to \"\" ")
-	postOn := flag.Bool("post", true, "Opens the standard blog posting TUI, defaults to true")
-	microPostOn := flag.Bool("micro", true, "Opens the micro blog post TUI, defaults to true")
+	postOn := flag.Bool("post", false, "Opens the standard blog posting TUI")
+	microPostOn := flag.Bool("micro", false, "Opens the micro blog post TUI")
 	key := flag.String("key", "", "The secret key for the site. Must be set!")
 	if _, test := os.LookupEnv("BLOG_BASEURL"); !test {
 		fmt.Print("Set `BLOG_BASEURL` to ensure your posts will actually be sent somewhere.\n\n")
