@@ -28,6 +28,7 @@ var content embed.FS
 
 type PageMeta struct {
 	PageTitle string
+	IsPost    bool
 }
 
 type NeatModel struct {
@@ -44,7 +45,7 @@ const microBlogCollection = "microBlogs"
 var secureToken string
 
 func (theModel NeatModel) indexHandler(w http.ResponseWriter, req *http.Request) {
-	indexMetaData := PageMeta{""}
+	indexMetaData := PageMeta{"", false}
 	if err := theModel.Template.ExecuteTemplate(w, "index.tmpl", indexMetaData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -138,6 +139,7 @@ func (theModel NeatModel) renderMicroPosts(w http.ResponseWriter, req *http.Requ
 	pageMetaData := map[string]any{
 		"PageTitle":  "Microblog",
 		"MicroPosts": blogPosts,
+		"IsPost":     false,
 	}
 	log.Print(blogPosts)
 	if err := theModel.Template.ExecuteTemplate(w, "microBlogPage.tmpl", pageMetaData); err != nil {
@@ -157,6 +159,7 @@ func (theModel NeatModel) renderAllPosts(w http.ResponseWriter, req *http.Reques
 	pageMetaData := map[string]any{
 		"PageTitle": "Blog",
 		"Posts":     blogPosts,
+		"IsPost":    false,
 	}
 	if err := theModel.Template.ExecuteTemplate(w, "blogListPage.tmpl", pageMetaData); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -179,8 +182,9 @@ func (theModel NeatModel) renderAPost(w http.ResponseWriter, r *http.Request) {
 	}
 	theQuery.Unmarshal(&thePost)
 	pageMetaData := map[string]any{
-		"Title": thePost.Title,
-		"Post":  thePost,
+		"Title":  thePost.Title,
+		"Post":   thePost,
+		"IsPost": true,
 	}
 
 	if err := theModel.Template.ExecuteTemplate(w, "blogPostPage.tmpl", pageMetaData); err != nil {
@@ -210,6 +214,7 @@ func (theModel NeatModel) renderTagList(w http.ResponseWriter, r *http.Request) 
 		"Title":   (tag) + " Posts",
 		"SortTag": tag,
 		"Posts":   blogPosts,
+		"IsPost":  false,
 	}
 	if err := theModel.Template.ExecuteTemplate(w, "microBlogPage.tmpl", pageMetaData); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
